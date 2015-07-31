@@ -128,8 +128,8 @@ if (WIN32)
         "src/util/windows/environment.cc"
         "src/util/windows/process.cc"
         "src/util/windows/registry.cc"
-        "src/util/windows/system_error.cc"
         "src/util/windows/user.cc"
+        "src/util/windows/win32_error.cc"
         "src/util/windows/wmi.cc"
         "src/util/windows/wsa.cc"
     )
@@ -225,11 +225,11 @@ elseif ("${CMAKE_SYSTEM_NAME}" MATCHES "Windows")
     # The GetPerformanceInfo symbol has moved around a lot between Windows versions;
     # these options tie it to the backwards-compatible version.
     set(LIBFACTER_PLATFORM_LIBRARIES
-        Psapi.lib
-        Version.lib
-        Wbemuuid.lib
-        Secur32.lib
-        Ws2_32.lib
+        psapi.lib
+        version.lib
+        wbemuuid.lib
+        secur32.lib
+        ws2_32.lib
         iphlpapi.lib
         userenv.lib
     )

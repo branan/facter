@@ -1,6 +1,6 @@
 #include <internal/facts/windows/networking_resolver.hpp>
 #include <internal/util/windows/registry.hpp>
-#include <internal/util/windows/system_error.hpp>
+#include <internal/util/windows/win32_error.hpp>
 #include <internal/util/windows/wsa.hpp>
 #include <internal/util/windows/windows.hpp>
 #include <leatherman/logging/logging.hpp>
@@ -8,7 +8,7 @@
 #include <boost/range/combine.hpp>
 #include <boost/nowide/convert.hpp>
 #include <iomanip>
-#include <Ws2tcpip.h>
+#include <ws2tcpip.h>
 #include <iphlpapi.h>
 
 #ifdef interface
@@ -41,13 +41,13 @@ namespace facter { namespace facts { namespace windows {
         DWORD size = 0u;
         GetComputerNameExW(nameFormat, nullptr, &size);
         if (GetLastError() != ERROR_MORE_DATA) {
-            LOG_DEBUG("failure resolving hostname: %1%", system_error());
+            LOG_DEBUG("failure resolving hostname: %1%", win32_error());
             return "";
         }
 
         wstring buffer(size, '\0');
         if (!GetComputerNameExW(nameFormat, &buffer[0], &size)) {
-            LOG_DEBUG("failure resolving hostname: %1%", system_error());
+            LOG_DEBUG("failure resolving hostname: %1%", win32_error());
             return "";
         }
 
@@ -121,13 +121,13 @@ namespace facter { namespace facts { namespace windows {
             } else if (err == ERROR_BUFFER_OVERFLOW) {
                 pAddresses.resize(outBufLen);
             } else {
-                LOG_DEBUG("failure getting netmask info: %1%", system_error(err));
+                LOG_DEBUG("failure getting netmask info: %1%", win32_error(err));
                 return {};
             }
         }
 
         if (err != ERROR_SUCCESS) {
-            LOG_DEBUG("failure getting netmask info: %1%", system_error(err));
+            LOG_DEBUG("failure getting netmask info: %1%", win32_error(err));
             return {};
         }
 
@@ -176,13 +176,13 @@ namespace facter { namespace facts { namespace windows {
             } else if (err == ERROR_BUFFER_OVERFLOW) {
                 pAddresses.resize(outBufLen);
             } else {
-                LOG_DEBUG("failure resolving networking facts: %1%", system_error(err));
+                LOG_DEBUG("failure resolving networking facts: %1%", win32_error(err));
                 return result;
             }
         }
 
         if (err != ERROR_SUCCESS) {
-            LOG_DEBUG("failure resolving networking facts: %1%", system_error(err));
+            LOG_DEBUG("failure resolving networking facts: %1%", win32_error(err));
             return result;
         }
 

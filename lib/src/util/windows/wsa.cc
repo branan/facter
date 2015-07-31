@@ -1,7 +1,7 @@
 #include <internal/util/windows/wsa.hpp>
 #include <leatherman/logging/logging.hpp>
 #include <boost/nowide/convert.hpp>
-#include <Ws2tcpip.h>
+#include <ws2tcpip.h>
 
 using namespace std;
 

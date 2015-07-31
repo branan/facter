@@ -1,5 +1,5 @@
 #include <facter/util/scoped_resource.hpp>
-#include <internal/util/windows/system_error.hpp>
+#include <internal/util/windows/win32_error.hpp>
 #include <internal/util/windows/windows.hpp>
 #include <boost/format.hpp>
 #include <boost/nowide/convert.hpp>
@@ -8,7 +8,7 @@ using namespace std;
 
 namespace facter { namespace util { namespace windows {
 
-    string system_error(DWORD err)
+    string win32_error(DWORD err)
     {
         LPWSTR buffer = nullptr;
         if (FormatMessageW(
@@ -22,9 +22,9 @@ namespace facter { namespace util { namespace windows {
         return (boost::format("%1% (%2%)") % boost::nowide::narrow(buffer) % err).str();
     }
 
-    string system_error()
+    string win32_error()
     {
-        return system_error(GetLastError());
+        return win32_error(GetLastError());
     }
 
 }}}  // namespace facter::util::windows

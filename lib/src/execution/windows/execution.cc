@@ -5,7 +5,7 @@
 #include <facter/util/scoped_resource.hpp>
 #include <internal/execution/execution.hpp>
 #include <internal/util/scoped_env.hpp>
-#include <internal/util/windows/system_error.hpp>
+#include <internal/util/windows/win32_error.hpp>
 #include <internal/util/windows/windows.hpp>
 #include <leatherman/logging/logging.hpp>
 #include <boost/filesystem.hpp>
@@ -134,7 +134,7 @@ namespace facter { namespace execution {
             &attributes), CloseHandle);
 
         if (read_handle == INVALID_HANDLE_VALUE) {
-            LOG_ERROR("failed to create read pipe: %1%.", system_error());
+            LOG_ERROR("failed to create read pipe: %1%.", win32_error());
             throw execution_exception("failed to create read pipe.");
         }
 
@@ -149,7 +149,7 @@ namespace facter { namespace execution {
             nullptr), CloseHandle);
 
         if (write_handle == INVALID_HANDLE_VALUE) {
-            LOG_ERROR("failed to create write pipe: %1%.", system_error());
+            LOG_ERROR("failed to create write pipe: %1%.", win32_error());
             throw execution_exception("failed to create write pipe.");
         }
         return make_tuple(move(read_handle), move(write_handle));
@@ -213,7 +213,7 @@ namespace facter { namespace execution {
             if (handle != INVALID_HANDLE_VALUE) {
                 event = scoped_resource<HANDLE>(CreateEvent(nullptr, TRUE, FALSE, nullptr), CloseHandle);
                 if (!event) {
-                    LOG_ERROR("failed to create %1% read event: %2%.", name, system_error());
+                    LOG_ERROR("failed to create %1% read event: %2%.", name, win32_error());
                     throw execution_exception("failed to create read event.");
                 }
                 overlapped.hEvent = event;
@@ -263,7 +263,7 @@ namespace facter { namespace execution {
                             pipe.pending = true;
                             break;
                         }
-                        LOG_ERROR("failed to read child %1% output: %2%.", pipe.name, system_error());
+                        LOG_ERROR("failed to read child %1% output: %2%.", pipe.name, win32_error());
                         throw execution_exception("failed to read child process output.");
                     }
 
@@ -303,7 +303,7 @@ namespace facter { namespace execution {
             // Wait for data (and, optionally, timeout)
             auto result = WaitForMultipleObjects(wait_handles.size(), wait_handles.data(), FALSE, INFINITE);
             if (result >= (WAIT_OBJECT_0 + wait_handles.size())) {
-                LOG_ERROR("failed to wait for child process output: %1%.", system_error());
+                LOG_ERROR("failed to wait for child process output: %1%.", win32_error());
                 throw execution_exception("failed to wait for child process output.");
             }
 
@@ -326,7 +326,7 @@ namespace facter { namespace execution {
                 DWORD count = 0;
                 if (!GetOverlappedResult(pipe.handle, &pipe.overlapped, &count, FALSE)) {
                     if (GetLastError() != ERROR_BROKEN_PIPE) {
-                        LOG_ERROR("failed to get asynchronous %1% read result: %2%.", pipe.name, system_error());
+                        LOG_ERROR("failed to get asynchronous %1% read result: %2%.", pipe.name, win32_error());
                         throw execution_exception("failed to get asynchronous read result.");
                     }
                     // Treat a broken pipe as nothing left to read
@@ -500,7 +500,7 @@ namespace facter { namespace execution {
             NULL,           /* Use existing current directory */
             &startupInfo,   /* STARTUPINFO for child process */
             &procInfo)) {   /* PROCESS_INFORMATION pointer for output */
-            LOG_ERROR("failed to create process: %1%.", system_error());
+            LOG_ERROR("failed to create process: %1%.", win32_error());
             throw execution_exception("failed to create child process.");
         }
 
@@ -519,10 +519,10 @@ namespace facter { namespace execution {
         if (use_job_object) {
             hJob = scoped_resource<HANDLE>(CreateJobObjectW(nullptr, nullptr), CloseHandle);
             if (hJob == NULL) {
-                LOG_ERROR("failed to create job object: %1%.", system_error());
+                LOG_ERROR("failed to create job object: %1%.", win32_error());
                 throw execution_exception("failed to create job object.");
             } else if (!AssignProcessToJobObject(hJob, hProcess)) {
-                LOG_ERROR("failed to associate process with job object: %1%.", system_error());
+                LOG_ERROR("failed to associate process with job object: %1%.", win32_error());
                 throw execution_exception("failed to associate process with job object.");
             }
         }
@@ -533,7 +533,7 @@ namespace facter { namespace execution {
                 // Terminate the process on an exception
                 if (use_job_object) {
                     if (!TerminateJobObject(hJob, -1)) {
-                        LOG_ERROR("failed to terminate process: %1%.", system_error());
+                        LOG_ERROR("failed to terminate process: %1%.", win32_error());
                     }
                 } else {
                     LOG_WARNING("tried to terminate child process, but we can't use a job object");
@@ -546,7 +546,7 @@ namespace facter { namespace execution {
         if (timeout) {
             timer = scoped_resource<HANDLE>(CreateWaitableTimer(nullptr, TRUE, nullptr), CloseHandle);
             if (!timer) {
-                LOG_ERROR("failed to create waitable timer: %1%.", system_error());
+                LOG_ERROR("failed to create waitable timer: %1%.", win32_error());
                 throw execution_exception("failed to create waitable timer.");
             }
 
@@ -555,7 +555,7 @@ namespace facter { namespace execution {
             LARGE_INTEGER future;
             future.QuadPart = timeout * -10000000ll;
             if (!SetWaitableTimer(timer, &future, 0, nullptr, nullptr, FALSE)) {
-                LOG_ERROR("failed to set waitable timer: %1%.", system_error());
+                LOG_ERROR("failed to set waitable timer: %1%.", win32_error());
                 throw execution_exception("failed to set waitable timer.");
             }
         }
@@ -583,7 +583,7 @@ namespace facter { namespace execution {
             // Timeout while waiting on the process to complete
             throw timeout_exception((boost::format("command timed out after %1% seconds.") % timeout).str(), static_cast<size_t>(procInfo.dwProcessId));
         } else {
-            LOG_ERROR("failed to wait for child process to terminate: %1%.", system_error());
+            LOG_ERROR("failed to wait for child process to terminate: %1%.", win32_error());
             throw execution_exception("failed to wait for child process to terminate.");
         }
 

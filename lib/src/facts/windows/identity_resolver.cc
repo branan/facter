@@ -1,5 +1,5 @@
 #include <internal/facts/windows/identity_resolver.hpp>
-#include <internal/util/windows/system_error.hpp>
+#include <internal/util/windows/win32_error.hpp>
 #include <internal/util/windows/windows.hpp>
 #include <leatherman/logging/logging.hpp>
 #include <boost/nowide/convert.hpp>
@@ -21,14 +21,14 @@ namespace facter { namespace facts { namespace windows {
         auto nameformat = NameSamCompatible;
         GetUserNameExW(nameformat, nullptr, &size);
         if (GetLastError() != ERROR_MORE_DATA) {
-            LOG_DEBUG("failure resolving identity facts: %1% (%2%)", system_error());
+            LOG_DEBUG("failure resolving identity facts: %1% (%2%)", win32_error());
             return result;
         }
 
         // Use the string as a raw buffer that supports move and ref operations.
         wstring buffer(size, '\0');
         if (!GetUserNameExW(nameformat, &buffer[0], &size)) {
-            LOG_DEBUG("failure resolving identity facts: %1% (%2%)", system_error());
+            LOG_DEBUG("failure resolving identity facts: %1% (%2%)", win32_error());
             return result;
         }
 

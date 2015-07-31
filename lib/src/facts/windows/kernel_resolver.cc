@@ -1,5 +1,5 @@
 #include <internal/facts/windows/kernel_resolver.hpp>
-#include <internal/util/windows/system_error.hpp>
+#include <internal/util/windows/win32_error.hpp>
 #include <internal/util/windows/windows.hpp>
 #include <facter/facts/os.hpp>
 #include <leatherman/logging/logging.hpp>
@@ -68,7 +68,7 @@ namespace facter { namespace facts { namespace windows {
             result.release = move(*release);
             result.version = result.release;
         } else {
-            LOG_DEBUG("failed to retrieve kernel facts: %1%", system_error());
+            LOG_DEBUG("failed to retrieve kernel facts: %1%", win32_error());
         }
 
         result.name = os::windows;

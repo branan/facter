@@ -1,6 +1,6 @@
 #include <internal/util/windows/user.hpp>
 #include <internal/util/windows/process.hpp>
-#include <internal/util/windows/system_error.hpp>
+#include <internal/util/windows/win32_error.hpp>
 #include <internal/util/windows/windows.hpp>
 #include <facter/util/scoped_resource.hpp>
 #include <leatherman/logging/logging.hpp>
@@ -26,7 +26,7 @@ namespace facter { namespace util { namespace windows { namespace user {
         unsigned char sid_buffer[SECURITY_MAX_SID_SIZE];
         auto sid = static_cast<PSID>(&sid_buffer);
         if (!CreateWellKnownSid(WinBuiltinAdministratorsSid, nullptr, sid, &sid_size)) {
-            LOG_DEBUG("Failed to create administrators SID: %1%", system_error());
+            LOG_DEBUG("Failed to create administrators SID: %1%", win32_error());
             return false;
         }
 
@@ -37,7 +37,7 @@ namespace facter { namespace util { namespace windows { namespace user {
 
         BOOL is_member;
         if (!CheckTokenMembership(nullptr, sid, &is_member)) {
-            LOG_DEBUG("Failed to check membership: %1%", system_error());
+            LOG_DEBUG("Failed to check membership: %1%", win32_error());
             return false;
         }
 
@@ -48,7 +48,7 @@ namespace facter { namespace util { namespace windows { namespace user {
     {
         HANDLE temp_token = INVALID_HANDLE_VALUE;
         if (!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &temp_token)) {
-            LOG_DEBUG("OpenProcessToken call failed: %1%", system_error());
+            LOG_DEBUG("OpenProcessToken call failed: %1%", win32_error());
             return {};
         }
         scoped_resource<HANDLE> token(temp_token, CloseHandle);
@@ -58,13 +58,13 @@ namespace facter { namespace util { namespace windows { namespace user {
             LOG_DEBUG("GetUserProfileDirectoryW call returned unexpectedly");
             return {};
         } else if (GetLastError() != ERROR_INSUFFICIENT_BUFFER) {
-            LOG_DEBUG("GetUserProfileDirectoryW call failed: %1%", system_error());
+            LOG_DEBUG("GetUserProfileDirectoryW call failed: %1%", win32_error());
             return {};
         }
 
         wstring buffer(pathLen, '\0');
         if (!GetUserProfileDirectoryW(token, &buffer[0], &pathLen)) {
-            LOG_DEBUG("GetUserProfileDirectoryW call failed: %1%", system_error());
+            LOG_DEBUG("GetUserProfileDirectoryW call failed: %1%", win32_error());
             return {};
         }
 

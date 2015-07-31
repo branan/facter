@@ -1,5 +1,5 @@
 #include <internal/util/windows/registry.hpp>
-#include <internal/util/windows/system_error.hpp>
+#include <internal/util/windows/win32_error.hpp>
 #include <internal/util/windows/windows.hpp>
 #include <boost/format.hpp>
 #include <boost/algorithm/string/trim.hpp>
@@ -42,7 +42,7 @@ namespace facter { namespace util { namespace windows {
         auto err = RegGetValueW(hk, lpSubKeyW.c_str(), lpValueW.c_str(), flags, nullptr, nullptr, &size);
         if (err != ERROR_SUCCESS) {
             throw registry_exception(str(boost::format("error reading registry key %1% %2%: %3%") %
-                lpSubKey % lpValue % system_error(err)));
+                lpSubKey % lpValue % win32_error(err)));
         }
 
         // Size is the number of bytes needed.
@@ -50,7 +50,7 @@ namespace facter { namespace util { namespace windows {
         err = RegGetValueW(hk, lpSubKeyW.c_str(), lpValueW.c_str(), flags, nullptr, &buffer[0], &size);
         if (err != ERROR_SUCCESS) {
             throw registry_exception(str(boost::format("error reading registry key %1% %2%: %3%") %
-                lpSubKey % lpValue % system_error(err)));
+                lpSubKey % lpValue % win32_error(err)));
         }
 
         // Size now represents bytes copied (which can be less than we allocated). Resize, and also remove the

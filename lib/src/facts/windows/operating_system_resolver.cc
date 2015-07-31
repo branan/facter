@@ -1,6 +1,6 @@
 #include <internal/facts/windows/operating_system_resolver.hpp>
 #include <internal/util/regex.hpp>
-#include <internal/util/windows/system_error.hpp>
+#include <internal/util/windows/win32_error.hpp>
 #include <internal/util/windows/wmi.hpp>
 #include <internal/util/windows/windows.hpp>
 #include <facter/facts/collection.hpp>
@@ -8,7 +8,7 @@
 #include <leatherman/logging/logging.hpp>
 #include <intrin.h>
 #include <winnt.h>
-#include <Shlobj.h>
+#include <shlobj.h>
 #include <map>
 #include <boost/filesystem.hpp>
 
@@ -57,7 +57,7 @@ namespace facter { namespace facts { namespace windows {
         // executables can be found.
         TCHAR szPath[MAX_PATH];
         if (!SUCCEEDED(SHGetFolderPath(NULL, CSIDL_WINDOWS, NULL, 0, szPath))) {
-            LOG_DEBUG("error finding SYSTEMROOT: %1%", system_error());
+            LOG_DEBUG("error finding SYSTEMROOT: %1%", win32_error());
         }
 
         auto pathNative = path(szPath) / "sysnative";

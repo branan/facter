@@ -1,7 +1,7 @@
 #include <facter/util/scoped_resource.hpp>
 #include <internal/util/regex.hpp>
 #include <internal/util/dynamic_library.hpp>
-#include <internal/util/windows/system_error.hpp>
+#include <internal/util/windows/win32_error.hpp>
 #include <internal/util/windows/windows.hpp>
 #include <leatherman/logging/logging.hpp>
 #include <boost/format.hpp>
@@ -23,7 +23,7 @@ namespace facter { namespace util {
         // the Tool Help library.
         HANDLE hModuleSnap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, GetCurrentProcessId());
         if (hModuleSnap == INVALID_HANDLE_VALUE) {
-            LOG_DEBUG("library matching pattern %1% not found, CreateToolhelp32Snapshot failed: %2%.", pattern.c_str(), system_error());
+            LOG_DEBUG("library matching pattern %1% not found, CreateToolhelp32Snapshot failed: %2%.", pattern.c_str(), win32_error());
             return library;
         }
         scoped_resource<HANDLE> hModSnap(hModuleSnap, CloseHandle);
@@ -31,7 +31,7 @@ namespace facter { namespace util {
         MODULEENTRY32 me32 = {};
         me32.dwSize = sizeof(MODULEENTRY32);
         if (!Module32First(hModSnap, &me32)) {
-            LOG_DEBUG("library matching pattern %1% not found, Module32First failed: %2%.", pattern.c_str(), system_error());
+            LOG_DEBUG("library matching pattern %1% not found, Module32First failed: %2%.", pattern.c_str(), win32_error());
             return library;
         }
 
@@ -73,7 +73,7 @@ namespace facter { namespace util {
             // Load now
             hMod = LoadLibraryW(wname.c_str());
             if (!hMod) {
-                LOG_DEBUG("library %1% not found %2%.", name.c_str(), system_error());
+                LOG_DEBUG("library %1% not found %2%.", name.c_str(), win32_error());
                 return false;
             }
             _first_load = true;

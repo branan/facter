@@ -16,12 +16,12 @@
 #include <internal/facts/windows/timezone_resolver.hpp>
 #include <internal/facts/windows/uptime_resolver.hpp>
 #include <internal/facts/windows/virtualization_resolver.hpp>
-#include <internal/util/windows/system_error.hpp>
+#include <internal/util/windows/win32_error.hpp>
 #include <internal/util/windows/user.hpp>
 #include <internal/util/windows/windows.hpp>
 #include <leatherman/logging/logging.hpp>
 #include <boost/filesystem.hpp>
-#include <Shlobj.h>
+#include <shlobj.h>
 
 using namespace std;
 using namespace facter::util;
@@ -41,7 +41,7 @@ namespace facter { namespace facts {
                 return {p.string()};
             }
 
-            LOG_WARNING("error finding COMMON_APPDATA, external facts unavailable: %1%", system_error());
+            LOG_WARNING("error finding COMMON_APPDATA, external facts unavailable: %1%", win32_error());
         } else {
             auto home = user::home_dir();
             if (!home.empty()) {
