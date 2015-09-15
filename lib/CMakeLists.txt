@@ -330,6 +330,16 @@ if (APPLE)
     install(CODE "EXECUTE_PROCESS(COMMAND ln -sf libfacter.so libfacter.bundle WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/${LIBFACTER_INSTALL_DESTINATION})")
 endif()
 
+if(AIX)
+    # On AIX, the kernel keeps a reference to every (root-owned) shared library that has ever been built.
+    # This can cause linking to fail with a "file already in use" error.
+    # The solution is to sun 'slibclean' before we link, if and only if we're root.
+    execute_process(COMMAND whoami OUTPUT_VARIABLE AIX_WHOAMI)
+    if ("${AIX_WHOAMI}" MATCHES "root")
+        add_custom_command(TARGET libfacter PRE_LINK COMMAND /usr/sbin/slibclean)
+    endif()
+endif()
+
 set(RUBY_LIB_INSTALL "" CACHE PATH "Specify the location to install facter.rb")
 if(RUBY_LIB_INSTALL)
     set(RUBY_VENDORDIR ${RUBY_LIB_INSTALL}) 
