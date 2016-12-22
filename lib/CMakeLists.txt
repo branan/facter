@@ -115,6 +115,7 @@ endif()
 if (AIX)
     set(LIBFACTER_PLATFORM_SOURCES
         "src/facts/aix/collection.cc"
+        "src/facts/aix/disk_resolver.cc"
         "src/facts/aix/kernel_resolver.cc"
         "src/facts/aix/memory_resolver.cc"
         "src/facts/aix/networking_resolver.cc"
