@@ -997,6 +997,14 @@ msgstr ""
 msgid "strftime failed: timezone is unavailable."
 msgstr ""
 
+#: lib/src/facts/posix/uptime_resolver.cc
+msgid "Attempting to calculate the uptime from the utmpx file"
+msgstr ""
+
+#: lib/src/facts/posix/uptime_resolver.cc
+msgid "Could not calculate the uptime from the utmpx file"
+msgstr ""
+
 #. debug
 #: lib/src/facts/posix/xen_resolver.cc
 msgid "failure executing {1}: {2}"
